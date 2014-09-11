@@ -1,0 +1,68 @@
+<html>
+<head><meta content="text/html;charset=utf-8" http-equiv="Content-Type"><meta content="utf-8" http-equiv="encoding"></head>
+<script>
+var Building, TELE, Game, breadcount, telecost;
+building = {};
+building.cost = 0;
+building.bpsadd = 0;
+building.amt = 0;
+TELE = building;
+TELE.cost = 1;
+TELE.bpsadd = 0.1;
+game = {};
+game.buildings = [TELE];
+game.bread = 0;
+game.old = game.bread
+game.bps = 0;
+function action(task) {
+    eval(task)
+    secloop()
+}
+function buybuilding(location) {
+    'use strict';
+    var building;
+    building = window.game.buildings[location];
+    if (window.game.bread >= building.cost) {
+        window.game.bread -= building.cost;
+        building.amt += 1;
+        building.cost = Math.round(building.cost * 1.5);
+        window.game.buildings[location] = building;
+    }
+}
+function recalcbps() {
+    'use strict';
+    var tempbps;
+    tempbps = 0;
+    tempbps += window.game.buildings[0].amt * window.game.buildings[0].bpsadd;
+    window.game.bps = tempbps;
+}
+function update() {
+    'use strict';
+    var out1, out2;
+    out1 = "You have " + String(Math.round(window.game.bread)) + " bread";
+    out2 = "(cost: " + String(window.game.buildings[0].cost) + " )";
+    document.getElementById("breadcount").innerHTML = out1;
+    document.getElementById("telecost").innerHTML = out2;
+}
+function secloop() {
+    'use strict';
+    var testbread;
+    recalcbps();
+    window.game.bread += window.game.bps;
+    testbread = Math.round(window.game.bread)
+    update();
+}
+
+setInterval(secloop(), 1000);
+</script>
+<button onclick="action('window.game.bread += 1')">
+Teleport bread
+</button>
+<br>
+<p id="breadcount">You have nothing</p>
+<br>
+<button onclick="action('buybuilding(0)')">
+Buy teleporter <p id="telecost">(cost: 1 )</p>
+</button>
+<script>
+</html>
