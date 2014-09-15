@@ -55,7 +55,7 @@ class Application(tk.Frame):
         if self.bread >= building.cost:
             self.bread -= building.cost
             building.amt += 1
-            building.cost = round(building.cost * 1.5)
+            building.cost = int(building.cost * 1.5)
             self.buildings[location] = building
 
     def recalcbps(self):
@@ -75,7 +75,8 @@ class Application(tk.Frame):
         if not disabled == False:
             exec("self.%s['state'] = tk.Disabled" % (name))
         exec("self.%s.grid(%s)" % (name, grid))
-        self.bislist.append([name, text])
+        if not text == "Teleport bread":
+            self.bislist.append([name, text])
 
     def createwidgets(self):
         """Create the buttons and labels"""
@@ -83,53 +84,47 @@ class Application(tk.Frame):
         self.addtoapp("add_bread", "Teleport bread", "Button",
                       "lambda: increaseval('bread', 1)")
         #BREAD COUNT
-        self.addtoapp("breadcount", "str(self.bread)")
+        self.addtoapp("breadcount", "str(int(self.bread))")
         #BPS COUNT
         self.addtoapp("bpscount", "str(self.bps)")
         ##TELEPORTERS##
         self.teleframe = tk.Frame()
-        self.teleframe.grid(row=1, column=0)
+        self.teleframe.grid()
         #BUY TELE1 BUTTON
         self.addtoapp("teleframe.buy_tele1",
-                      "Buy a level 1 Teleporter (cost: %s)" % (str(self.buildings[0].cost)),
+                      "'Buy a level 1 Teleporter (cost: %s)' % (str(self.buildings[0].cost))",
                       "Button", "lambda: APP.buybuilding(0)")
         #BUY TELE2 BUTTON
         self.addtoapp("teleframe.buy_tele2",
-                      "Buy a level 2 Teleporter (cost: %s)" % (str(self.buildings[1].cost)),
+                      "'Buy a level 2 Teleporter (cost: %s)' % (str(self.buildings[1].cost))",
                       "Button", "lambda: APP.buybuilding(1)" #True
                       )
         #BUY TELE3 BUTTON
         self.addtoapp("teleframe.buy_tele3",
-                      "Buy a level 3 Teleporter (cost: %s)" % (str(self.buildings[2].cost)),
+                      "'Buy a level 3 Teleporter (cost: %s)' % (str(self.buildings[2].cost))",
                       "Button", "lambda: APP.buybuilding(2)" #True
                       )
         ##ENGIS##
         self.engiframe = tk.Frame()
-        self.teleframe.grid(row=1, column=1)
+        self.teleframe.grid()
         #BUY ENGI BUTTON
         self.addtoapp("engiframe.buy_engi",
-                      "Buy an engineer (cost: %s)" % (str(self.buildings[3].cost)),
+                      "'Buy an engineer (cost: %s)' % (str(self.buildings[3].cost))",
                       "Button", "lambda: APP.buybuilding(3)")
         #BUY MECHA ENGI BUTTON
         self.addtoapp("engiframe.buy_tobengi",
-                      "Buy a robotic engineer (cost: %s)" % (str(self.buildings[4].cost)),
+                      "'Buy a robotic engineer (cost: %s)' % (str(self.buildings[4].cost))",
                       "Button", "lambda: APP.buybuilding(4)" #True
                       )
         self.addtoapp("engiframe.buy_ubengi",
-                      "Buy an ubercharged engineer (cost: %s)" % (str(self.buildings[5].cost)),
-                      "Button", "lambda: APPbuybuilding(5)" #True
+                      "'Buy an ubercharged engineer (cost: %s)' % (str(self.buildings[5].cost))",
+                      "Button", "lambda: APP.buybuilding(5)" #True
                       )
 
     def updatewidgets(self):
         """It looks easy but I want to try and put a for loop in here"""
-        self.breadcount["text"] = str(int(self.bread))
-        self.teleframe.buy_tele1["text"] = "Buy a level 1 Teleporter (cost: %s)" % (str(self.buildings[0].cost))
-        self.teleframe.buy_tele2["text"] = "Buy a level 2 Teleporter (cost: %s)" % (str(self.buildings[1].cost))
-        self.teleframe.buy_tele3["text"] = "Buy a level 3 Teleporter (cost: %s)" % (str(self.buildings[2].cost))
-        self.engiframe.buy_engi["text"] = "Buy an engineer (cost: %s)" % (str(self.buildings[3].cost))
-        self.engiframe.buy_tobengi["text"] = "Buy a robotic engineer (cost: %s)" % (str(self.buildings[4].cost))
-        self.engiframe.buy_ubengi["text"] = "Buy an ubercharged engineer (cost: %s)" % (str(self.buildings[5].cost)),
-        self.bpscount["text"] = str(self.bps)
+        for bis in self.bislist:
+            exec("self.%s['text'] = %s" % (bis[0], bis[1]))
 
 
 def increaseval(name, val):
