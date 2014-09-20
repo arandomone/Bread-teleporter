@@ -23,20 +23,13 @@ TELE3 = Building(1000, 1000)
 ENGI = Building(100, 1)
 MECHENGI = Building(1000, 100)
 UBERENGI = Building(10000, 10000)
-#SERVER
-SERB12 = Building(1000, 10)
-SERB24 = Building(10000, 1000)
-SERB32 = Building(100000, 100000)
-#GAME
-GAMEL = Building(10000, 100)
-GAMEM = Building(100000, 10000)
-GAMEH = Building(1000000, 1000000)
-#RED BRED
+#LASTS
+SERB = Building(100000, 1000)
+GAME = Building(1000000, 100000)
 #2op4u
 RBRED = Building(100000000, 100000000)
 #ALL of the stuff above is here
-BUILDLIST = [TELE1, TELE2, TELE3, ENGI, MECHENGI, UBERENGI, SERB24, SERB24,
-             SERB32, GAMEL, GAMEM, GAMEH, RBRED]
+BUILDLIST = [TELE1, TELE2, TELE3, ENGI, MECHENGI, UBERENGI, SERB, GAME, RBRED]
 class Application(tk.Frame):
     """The application used in bread teleportation"""
     def __init__(self, master=None):
@@ -82,49 +75,56 @@ class Application(tk.Frame):
         """Create the buttons and labels"""
         #GET BREAD BUTTON
         self.addtoapp("add_bread", "Teleport bread", "Button",
-                      "lambda: increaseval('bread', 1)")
+                      "lambda: increaseval('bread', 1)", grid="row=0, column=0")
         #BREAD COUNT
-        self.addtoapp("breadcount", "str(int(self.bread))")
+        self.addtoapp("breadcount", "str(int(APP.bread))", grid="row=1, column=0")
         #BPS COUNT
-        self.addtoapp("bpscount", "str(self.bps)")
+        self.addtoapp("bpscount", "str(APP.bps)", grid="row=2, column=0")
         ##TELEPORTERS##
         self.teleframe = tk.Frame()
-        self.teleframe.grid()
+        self.teleframe.grid(row=3, column=0)
         #BUY TELE1 BUTTON
         self.addtoapp("teleframe.buy_tele1",
-                      "'Buy a level 1 Teleporter (cost: %s)' % (str(self.buildings[0].cost))",
+                      "'Buy a level 1 Teleporter (cost: %s)' % (str(APP.buildings[0].cost))",
                       "Button", "lambda: APP.buybuilding(0)")
         #BUY TELE2 BUTTON
         self.addtoapp("teleframe.buy_tele2",
-                      "'Buy a level 2 Teleporter (cost: %s)' % (str(self.buildings[1].cost))",
-                      "Button", "lambda: APP.buybuilding(1)" #True
-                      )
+                      "'Buy a level 2 Teleporter (cost: %s)' % (str(APP.buildings[1].cost))",
+                      "Button", "lambda: APP.buybuilding(1)")
         #BUY TELE3 BUTTON
         self.addtoapp("teleframe.buy_tele3",
-                      "'Buy a level 3 Teleporter (cost: %s)' % (str(self.buildings[2].cost))",
-                      "Button", "lambda: APP.buybuilding(2)" #True
-                      )
+                      "'Buy a level 3 Teleporter (cost: %s)' % (str(APP.buildings[2].cost))",
+                      "Button", "lambda: APP.buybuilding(2)")
         ##ENGIS##
         self.engiframe = tk.Frame()
-        self.teleframe.grid()
+        self.teleframe.grid(row=3, column=1)
         #BUY ENGI BUTTON
         self.addtoapp("engiframe.buy_engi",
-                      "'Buy an engineer (cost: %s)' % (str(self.buildings[3].cost))",
+                      "'Buy an engineer (cost: %s)' % (str(APP.buildings[3].cost))",
                       "Button", "lambda: APP.buybuilding(3)")
         #BUY MECHA ENGI BUTTON
         self.addtoapp("engiframe.buy_tobengi",
-                      "'Buy a robotic engineer (cost: %s)' % (str(self.buildings[4].cost))",
-                      "Button", "lambda: APP.buybuilding(4)" #True
-                      )
+                      "'Buy a robotic engineer (cost: %s)' % (str(APP.buildings[4].cost))",
+                      "Button", "lambda: APP.buybuilding(4)")
+        #BUY UBER ENGI BUTTON
         self.addtoapp("engiframe.buy_ubengi",
-                      "'Buy an ubercharged engineer (cost: %s)' % (str(self.buildings[5].cost))",
-                      "Button", "lambda: APP.buybuilding(5)" #True
-                      )
-
-    def updatewidgets(self):
-        """It looks easy but I want to try and put a for loop in here"""
-        for bis in self.bislist:
-            exec("self.%s['text'] = %s" % (bis[0], bis[1]))
+                      "'Buy an ubercharged engineer (cost: %s)' % (str(APP.buildings[5].cost))",
+                      "Button", "lambda: APP.buybuilding(5)")
+        ##LASTS###
+        self.lastframe = tk.Frame()
+        self.lastframe.grid(row=3, column=2)
+        #BUY SERVER
+        self.addtoapp("lastframe.buy_serb",
+                      "'Buy your own server (cost: %s)' % (str(APP.buildings[6].cost))",
+                      "Button", "lambda: APP.buybuilding(6)")
+        #BUY GAME
+        self.addtoapp("lastframe.buy_game",
+                      "'Buy a game making company (cost: %s)' % (str(APP.buildings[7].cost))",
+                      "Button", "lambda: APP.buybuilding(7)")
+        #BUY RED BRED
+        self.addtoapp("lastframe.buy_rbred",
+                      "'Buy Red Bread (cost: %s)' % (str(APP.buildings[8].cost))",
+                      "Button", "lambda: APP.buybuilding(8)")
 
 
 def increaseval(name, val):
@@ -143,7 +143,8 @@ def pigloop1():
 def pigloop2():
     """This also piggybacks but is used for updating numbers"""
     APP.recalcbps()
-    APP.updatewidgets()
+    for bis in APP.bislist:
+        exec("APP.%s['text'] = %s" % (bis[0], bis[1]))
     APP.after(100, pigloop2)
 
 APP.after(0, pigloop1)
