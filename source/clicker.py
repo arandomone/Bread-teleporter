@@ -23,12 +23,15 @@ class Achievement:
 
 class Upgrade:
     """For upgrades"""
-    def __init__(self, text, cond, cost, effect):
+    def __init__(self, name, text, cond, cost, effect, location):
+        self.name = name
         self.text = text
         self.cond = cond
         self.cost = cost
         self.effect = effect
+        self.loc = location
         self.bought = False
+        self.shown = False
 
 #BUILDINGS:
 #Going by base 10 values until I think of better ones
@@ -37,10 +40,10 @@ TELE = Building(10, 0.1)
 #ENGINEERS
 ENGI = Building(100, 1)
 #LASTS
-SERB = Building(100000, 1000)
-GAME = Building(1000000, 100000)
+SERB = Building(1000, 10)
+GAME = Building(10000, 100)
 #2op4u
-RBRED = Building(100000000, 100000000)
+RBRED = Building(100000, 1000)
 #ALL of the stuff above is here
 BUILDLIST = [TELE, ENGI, SERB, GAME, RBRED]
 
@@ -62,12 +65,12 @@ ACH13 = Achievement("'Autoclicker!'", lambda: APP.clicks == 10000)
 ACHLIST = [ACH1, ACH2, ACH3, ACH4, ACH5, ACH6, ACH7, ACH8, ACH9, ACH10, ACH11,
            ACH12, ACH13]
 #UPGRADES:
-UP1 = Upgrade("Level 2 teleporters", lambda: APP.buildings[0].amt == 1, 100,
-              "APP.buildings[0].addbps *= 2")
-UP2 = Upgrade("Level 3 teleporters", lambda: APP.buildings[0].amt == 50, 10000,
-              "APP.buildings[0].addbps *= 4")
-UP3 = Upgrade("Level 4 teleporters", lambda: APP.buildings[0].amt == 100, 100000,
-              "APP.buildings[0].addbps *= 6")
+UP1 = Upgrade("tele1", "Level 2 teleporters", lambda: APP.buildings[0].amt == 1,
+              100, lambda: exec("APP.buildings[0].bpsadd *= 2"), 0)
+UP2 = Upgrade("tele2", "Level 3 teleporters", lambda: APP.buildings[0].amt == 50,
+              10000, lambda: exec("APP.buildings[0].bpsadd *= 4"), 1)
+UP3 = Upgrade("tele", "Level 4 teleporters", lambda: APP.buildings[0].amt == 100,
+              100000, lambda: exec("APP.buildings[0].bpsadd *= 6"), 2)
 UPLIST = [UP1, UP2, UP3]
 class Application(tk.Frame):
     """The application used in bread teleportation"""
@@ -93,6 +96,17 @@ class Application(tk.Frame):
             building.amt += 1
             building.cost = int(building.cost * 1.5)
             self.buildings[location] = building
+    
+    def buyupgrade(self, location):
+        """testing/buying upgrades"""
+        upgrade = self.upgrades[location]
+        if self.bread >= upgrade.cost:
+            self.bread -= upgrade.cost
+            upgrade.bought = True
+            upgrade.effect()
+            print("You have bought the %s upgrade!" % (upgrade.text))
+            exec("self.upframe.%s.destroy()" % (upgrade.name))
+            
 
 
     def addtoapp(self, name, text, tktype="Label", command=None, disabled=False,
@@ -140,10 +154,17 @@ class Application(tk.Frame):
                       "Button", "lambda: APP.buybuilding(4)")
         self.upframe = tk.Frame()
         self.upframe.grid()
+        
+    def addupgrade(self, up):
+        exec("self.upframe.%s = tk.Button(self)" % (up.name))
+        exec("self.upframe.%s['text'] = up.text + ' (cost: %i)'" % (up.name, up.cost))
+        exec("self.upframe.%s['command'] = lambda: APP.buyupgrade(%s)" % (up.name, up.loc))
+        exec("self.upframe.%s.grid()" % (up.name))
+        self.upgrades[up.loc].shown = True
 
 
 def increasebread(val=1, click=False):
-    """Increasing values from tkinter (Expect this to be replaced)"""
+    """Increasing values from tkinter (Expect this to be replaced( or not))"""
     #DO NOT use this for buying buildings
     APP.bread += val
     APP.totalbread += val
@@ -175,13 +196,9 @@ def pigloop2():
             print("You have achieved the %s achievement!" % (goal.text))
             goal.gotten = True
     #UPGRADE UPDATE
-    #upshown = 0
-    #for up in APP.upgrades:
-    #    if up.cond() and not up.bought:
-    #        exec("APP.upframe.up%i = tk.Button" % (upshown))
-    #        exec("APP.upframe.up%i['text'] = up.text" % (upshown))
-    #        exec("APP.upframe.up%i['command'] = up.effect" % (upshown))
-    #        upshown += 1
+    for up in APP.upgrades:
+        if up.cond() and not up.bought and not up.shown:
+            APP.addupgrade(up)
     APP.after(100, pigloop2)
 
 APP.after(0, pigloop1)
